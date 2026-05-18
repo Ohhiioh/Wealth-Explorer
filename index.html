@@ -1,703 +1,20 @@
-import React, { useState, useMemo } from 'react';
-import { 
-  Shield, 
-  Zap, 
-  Activity, 
-  Compass, 
-  Play, 
-  RotateCcw, 
-  HelpCircle, 
-  ArrowRight, 
-  Sparkles, 
-  DollarSign, 
-  User, 
-  AlertTriangle, 
-  CheckCircle, 
-  Compass as SpaceIcon,
-  Flame,
-  Scale,
-  Award
-} from 'lucide-react';
-
-const App = () => {
-  // --- 1. State Management ---
-  const [gameState, setGameState] = useState('welcome'); // welcome, setup, event, dashboard
-  const [inputs, setInputs] = useState({
-    age: 28,
-    monthlyIncome: 35000,
-    monthlyExpenses: 18000,
-    liquidAssets: 40000,
-    annualSavings: 42000,
-    monthlyDebt: 12000,
-    totalAssets: 150000,
-    totalDebts: 60000
-  });
-
-  const [currentEvent, setCurrentEvent] = useState(0);
-  const [eventHistory, setEventHistory] = useState([]);
-  const [activeModal, setActiveModal] = useState(null); // info modals
-
-  // --- 2. Interactive Event Database ---
-  const SPACE_EVENTS = [
-    {
-      title: "🌌 พายุสุริยะพัดถล่มห้องเครื่อง!",
-      desc: "ระบบแจ้งเตือนว่ายานได้รับความเสียหายจากรังสี คาดว่าต้องใช้เงินสำรองฉุกเฉินซ่อมแซมทันที 30,000 บาท คุณจะทำอย่างไร?",
-      options: [
-        {
-          text: "จ่ายด้วยเงินสดสำรองสภาพคล่องในคลังยาน",
-          effectText: "ลดเกราะป้องกันสำรอง (Liquidity) ลงทันที แต่ไม่เพิ่มภาระหนี้",
-          action: (prev) => ({
-            ...prev,
-            liquidAssets: Math.max(0, prev.liquidAssets - 30000),
-            totalAssets: Math.max(0, prev.totalAssets - 30000)
-          })
-        },
-        {
-          text: "รูด 'Space Card' บัตรเครดิตอวกาศเพื่อแบ่งชำระรายเดือน 3,000 บาท/เดือน",
-          effectText: "รักษาเกราะป้องกันไว้ได้ แต่เพิ่มน้ำหนักต้านทานยาน (Debt Service Ratio)",
-          action: (prev) => ({
-            ...prev,
-            monthlyDebt: prev.monthlyDebt + 3000,
-            totalDebts: prev.totalDebts + 30000
-          })
-        }
-      ]
-    },
-    {
-      title: "☄️ ค้นพบแร่คริสตัลดวงดาวโบราณ!",
-      desc: "คุณค้นพบขุมทรัพย์ระหว่างทาง มูลค่าเทียบเท่าโบนัสก้อนโต 50,000 บาท! คุณต้องการจัดสรรพลังงานนี้อย่างไร?",
-      options: [
-        {
-          text: "อัดฉีดเข้าห้องเชื้อเพลิงหลักทั้งหมด (เก็บออมทั้งหมด)",
-          effectText: "เพิ่มพลังขับเคลื่อนวาร์ป (Savings Ratio) และเกราะป้องกันอย่างมหาศาล",
-          action: (prev) => ({
-            ...prev,
-            liquidAssets: prev.liquidAssets + 50000,
-            annualSavings: prev.annualSavings + 50000,
-            totalAssets: prev.totalAssets + 50000
-          })
-        },
-        {
-          text: "ซื้อโมดูลตกแต่งห้องกัปตันและสิ่งอำนวยความสะดวกสุดหรูบนยาน",
-          effectText: "ความสุขระยะสั้นเต็ม 100 แต่โครงสร้างและสมรรถนะของยานเท่าเดิม",
-          action: (prev) => prev // No financial benefit, just lifestyle
-        }
-      ]
-    },
-    {
-      title: "🛡️ ตัวแทนสมาพันธ์กาแล็กซีขอลดหย่อนภาษีไอพ่น",
-      desc: "ทางการเสนอแคมเปญออมเงินเพื่อหักภาษีอวกาศ คุณสามารถย้ายเงินส่วนหนึ่งไปออมแบบระยะยาว (SSF/RMF กาแล็กซี) ได้ผลตอบแทนคืน 10,000 บาท",
-      options: [
-        {
-          text: "ตกลงเข้าร่วมแคมเปญ เพื่อดันอัตราการออมของยาน",
-          effectText: "เพิ่มระบบขับเคลื่อนวาร์ป (Savings) และรับกองทุนสะสมเพิ่มขึ้น",
-          action: (prev) => ({
-            ...prev,
-            annualSavings: prev.annualSavings + 10000,
-            totalAssets: prev.totalAssets + 10000
-          })
-        },
-        {
-          text: "ปฏิเสธ เพราะอยากเก็บเงินสดไว้เฉย ๆ ดีกว่า",
-          effectText: "ยานคงสภาพเดิม พลาดโอกาสประหยัดพลังงานเชื้อเพลิง",
-          action: (prev) => prev
-        }
-      ]
-    }
-  ];
-
-  // --- 3. Financial Ratio Calculations & Gamified Metrics ---
-  const metrics = useMemo(() => {
-    const { age, monthlyIncome, monthlyExpenses, liquidAssets, annualSavings, monthlyDebt, totalAssets, totalDebts } = inputs;
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wealth Explorer: Space Odyssey Game</title>
+    <!-- React & ReactDOM CDN -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <!-- Babel CDN (For JSX compilation in browser) -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts (Prompt) -->
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:ital,wght@0,300;0,400;0,700;0,900;1,400;1,900&display=swap" rel="stylesheet">
     
-    // A. Liquidity Ratio (Emergency Shield)
-    // Formula: Liquid Assets / Monthly Expenses
-    const liquidityRatio = monthlyExpenses > 0 ? (liquidAssets / monthlyExpenses) : 0;
-    const liquidityScore = Math.min(100, Math.round((liquidityRatio / 6) * 100)); // 6 months is 100%
-    
-    // B. Savings Ratio (Hyperdrive Fuel)
-    // Formula: Annual Savings / (Monthly Income * 12)
-    const annualIncome = monthlyIncome * 12;
-    const savingsRatio = annualIncome > 0 ? (annualSavings / annualIncome) : 0;
-    const savingsScore = Math.min(100, Math.round((savingsRatio / 0.20) * 100)); // 20% savings is 100% fuel
-
-    // C. Debt Service Ratio (Gravity Drag)
-    // Formula: Monthly Debt / Monthly Income
-    const debtRatio = monthlyIncome > 0 ? (monthlyDebt / monthlyIncome) : 0;
-    const dragScore = Math.min(100, Math.round((debtRatio / 0.45) * 100)); // 45% is 100% maximum dangerous drag
-
-    // D. Net Worth Ratio (Space Explorer Rank Index)
-    // Net Worth = Total Assets - Total Debts
-    // Target Net Worth = (Age * Annual Income) / 10
-    const netWorth = totalAssets - totalDebts;
-    const targetNetWorth = (age * annualIncome) / 10;
-    const netWorthRatio = targetNetWorth > 0 ? (netWorth / targetNetWorth) : 0;
-    const rankScore = Math.min(100, Math.round(netWorthRatio * 100));
-
-    return {
-      liquidityRatio,
-      liquidityScore,
-      savingsRatio,
-      savingsScore,
-      debtRatio,
-      dragScore,
-      netWorth,
-      targetNetWorth,
-      netWorthRatio,
-      rankScore
-    };
-  }, [inputs]);
-
-  // --- 4. Event Handler Functions ---
-  const handleOptionSelect = (option) => {
-    setInputs(prev => option.action(prev));
-    setEventHistory([...eventHistory, { eventIndex: currentEvent, choice: option.text }]);
-    
-    if (currentEvent < SPACE_EVENTS.length - 1) {
-      setCurrentEvent(currentEvent + 1);
-    } else {
-      setGameState('dashboard');
-    }
-  };
-
-  const handleInputChange = (field, val) => {
-    setInputs(prev => ({ ...prev, [field]: Number(val) }));
-  };
-
-  const resetGame = () => {
-    setGameState('welcome');
-    setCurrentEvent(0);
-    setEventHistory([]);
-  };
-
-  return (
-    <div className="min-h-screen bg-[#090d16] text-slate-100 font-sans selection:bg-indigo-500 selection:text-white pb-20 overflow-x-hidden relative">
-      
-      {/* Space Background Glows */}
-      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-600/10 blur-[150px] pointer-events-none" />
-      <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-emerald-600/10 blur-[150px] pointer-events-none" />
-
-      <div className="max-w-4xl mx-auto px-6 pt-12">
-        
-        {/* Header */}
-        <header className="flex flex-col sm:flex-row justify-between items-center mb-16 gap-6">
-          <div className="flex items-center gap-4">
-            <div className="p-4 bg-gradient-to-br from-indigo-500 to-purple-600 text-white rounded-2xl shadow-xl shadow-indigo-950/40 rotate-2 hover:rotate-0 transition-transform duration-300">
-              <SpaceIcon size={32} className="animate-spin-slow" />
-            </div>
-            <div>
-              <h1 className="text-3xl font-black tracking-tight text-white uppercase italic">Wealth <span className="text-indigo-400">Explorer</span></h1>
-              <p className="text-slate-500 text-[10px] font-bold uppercase tracking-[0.3em] mt-1">Space Odyssey Diagnostic</p>
-            </div>
-          </div>
-          {gameState !== 'welcome' && (
-            <button 
-              onClick={resetGame}
-              className="px-5 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-xs font-black uppercase text-slate-400 hover:text-rose-400 hover:border-rose-950/50 transition-all flex items-center gap-2"
-            >
-              <RotateCcw size={14} /> สละยาน / เริ่มใหม่
-            </button>
-          )}
-        </header>
-
-        {/* GAME SCREEN CONTROLLER */}
-        <main>
-          
-          {/* SCREEN 1: WELCOME */}
-          {gameState === 'welcome' && (
-            <div className="space-y-12 animate-in fade-in duration-700">
-              <section className="bg-gradient-to-b from-slate-900 to-slate-950 p-12 rounded-[3.5rem] border border-slate-800 text-center space-y-8 relative overflow-hidden shadow-2xl">
-                <div className="absolute -top-10 -right-10 w-40 h-40 bg-indigo-500/10 blur-3xl rounded-full" />
-                
-                <div className="space-y-4">
-                  <span className="px-4 py-1.5 bg-indigo-950 text-indigo-400 rounded-full text-[10px] font-black uppercase tracking-widest border border-indigo-900/50">Space Mission Ready</span>
-                  <h2 className="text-4xl md:text-5xl font-black italic tracking-tighter leading-tight text-white">
-                    เตรียมพร้อมส่งยาน <br/>ออกล่าสมบัติกาแล็กซี!
-                  </h2>
-                  <p className="text-slate-400 text-sm max-w-md mx-auto leading-relaxed">
-                    คุณได้รับมอบหมายให้คุมพวงมาลัยยานสำรวจเพื่อความมั่งคั่ง แต่ระวังให้ดี! สภาพยานของคุณจะเสถียรแค่ไหน ขึ้นอยู่กับวินัยและตัวเลขทางการเงินของคุณ
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-2xl mx-auto pt-4">
-                  <div className="p-4 bg-slate-900/50 rounded-2xl border border-slate-800/60 flex flex-col items-center gap-2">
-                    <Shield className="text-teal-400" size={24} />
-                    <span className="text-[10px] font-bold text-slate-500 uppercase">Emergency Shield</span>
-                  </div>
-                  <div className="p-4 bg-slate-900/50 rounded-2xl border border-slate-800/60 flex flex-col items-center gap-2">
-                    <Flame className="text-amber-400 animate-pulse" size={24} />
-                    <span className="text-[10px] font-bold text-slate-500 uppercase">Hyperdrive Fuel</span>
-                  </div>
-                  <div className="p-4 bg-slate-900/50 rounded-2xl border border-slate-800/60 flex flex-col items-center gap-2">
-                    <Scale className="text-rose-400" size={24} />
-                    <span className="text-[10px] font-bold text-slate-500 uppercase">Gravity Drag</span>
-                  </div>
-                  <div className="p-4 bg-slate-900/50 rounded-2xl border border-slate-800/60 flex flex-col items-center gap-2">
-                    <Award className="text-indigo-400" size={24} />
-                    <span className="text-[10px] font-bold text-slate-500 uppercase">Explorer Rank</span>
-                  </div>
-                </div>
-
-                <div className="pt-6">
-                  <button 
-                    onClick={() => setGameState('setup')}
-                    className="px-8 py-5 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-black rounded-2xl text-sm uppercase tracking-[0.2em] shadow-xl shadow-indigo-950/50 hover:scale-[1.03] active:scale-95 transition-all inline-flex items-center gap-3"
-                  >
-                    ตั้งพิกัดตัวเลขของคุณ <Play size={16} fill="currentColor" />
-                  </button>
-                </div>
-              </section>
-            </div>
-          )}
-
-          {/* SCREEN 2: INITIAL SETUP (FINANCIAL CONFIG) */}
-          {gameState === 'setup' && (
-            <div className="space-y-10 animate-in slide-in-from-bottom-12 duration-500">
-              <section className="bg-slate-900 p-10 md:p-14 rounded-[3.5rem] border border-slate-800 space-y-12 shadow-2xl">
-                <div className="border-b border-slate-800 pb-6 flex items-center gap-4">
-                  <div className="w-10 h-10 bg-indigo-950 text-indigo-400 rounded-xl flex items-center justify-center font-black">1</div>
-                  <div>
-                    <h3 className="text-xl font-black text-white italic leading-none uppercase">Configure Spaceship Specs</h3>
-                    <p className="text-slate-500 text-xs mt-2">กรอกข้อมูลจริงเพื่อจำลองความแข็งแกร่งของยานของคุณ</p>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  {/* Basic Profiles */}
-                  <div className="space-y-6">
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">อายุอวกาศ (ปี)</label>
-                      <input 
-                        type="number" 
-                        value={inputs.age} 
-                        onChange={(e) => handleInputChange('age', e.target.value)}
-                        className="w-full p-4 bg-slate-950/60 border border-slate-800/80 rounded-xl font-mono text-sm font-bold text-white outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">รายได้ต่อเดือน (บาท)</label>
-                      <input 
-                        type="number" 
-                        value={inputs.monthlyIncome} 
-                        onChange={(e) => handleInputChange('monthlyIncome', e.target.value)}
-                        className="w-full p-4 bg-slate-950/60 border border-slate-800/80 rounded-xl font-mono text-sm font-bold text-white outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">รายจ่ายจำเป็นต่อเดือน (บาท)</label>
-                      <input 
-                        type="number" 
-                        value={inputs.monthlyExpenses} 
-                        onChange={(e) => handleInputChange('monthlyExpenses', e.target.value)}
-                        className="w-full p-4 bg-slate-950/60 border border-slate-800/80 rounded-xl font-mono text-sm font-bold text-white outline-none focus:border-indigo-500"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">เงินออมสะสมทั้งปี (บาท)</label>
-                      <input 
-                        type="number" 
-                        value={inputs.annualSavings} 
-                        onChange={(e) => handleInputChange('annualSavings', e.target.value)}
-                        className="w-full p-4 bg-slate-950/60 border border-slate-800/80 rounded-xl font-mono text-sm font-bold text-white outline-none focus:border-indigo-500"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Wealth Assets & Debts */}
-                  <div className="space-y-6">
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">เงินสดสภาพคล่อง / ออมทรัพย์ (บาท)</label>
-                      <input 
-                        type="number" 
-                        value={inputs.liquidAssets} 
-                        onChange={(e) => handleInputChange('liquidAssets', e.target.value)}
-                        className="w-full p-4 bg-slate-950/60 border border-slate-800/80 rounded-xl font-mono text-sm font-bold text-white outline-none focus:border-indigo-500"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">ภาระหนี้ผ่อนรายเดือน (บาท)</label>
-                      <input 
-                        type="number" 
-                        value={inputs.monthlyDebt} 
-                        onChange={(e) => handleInputChange('monthlyDebt', e.target.value)}
-                        className="w-full p-4 bg-slate-950/60 border border-slate-800/80 rounded-xl font-mono text-sm font-bold text-white outline-none focus:border-indigo-500"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">สินทรัพย์ทั้งหมดที่มี (บ้าน, รถ, หุ้น, กองทุน)</label>
-                      <input 
-                        type="number" 
-                        value={inputs.totalAssets} 
-                        onChange={(e) => handleInputChange('totalAssets', e.target.value)}
-                        className="w-full p-4 bg-slate-950/60 border border-slate-800/80 rounded-xl font-mono text-sm font-bold text-white outline-none focus:border-indigo-500"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">หนี้สินทั้งหมดที่มี (บ้าน, รถ, บัตรเครดิต)</label>
-                      <input 
-                        type="number" 
-                        value={inputs.totalDebts} 
-                        onChange={(e) => handleInputChange('totalDebts', e.target.value)}
-                        className="w-full p-4 bg-slate-950/60 border border-slate-800/80 rounded-xl font-mono text-sm font-bold text-white outline-none focus:border-indigo-500"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="pt-4">
-                  <button 
-                    onClick={() => setGameState('event')}
-                    className="w-full py-6 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-black rounded-2xl text-xs uppercase tracking-[0.2em] shadow-xl hover:opacity-90 active:scale-[0.99] transition-all flex items-center justify-center gap-3"
-                  >
-                    ยืนยันพิกัดและปล่อยตัวยานอวกาศ <ArrowRight size={16} />
-                  </button>
-                </div>
-              </section>
-            </div>
-          )}
-
-          {/* SCREEN 3: SPACE CHRONICLES / RANDOM EVENTS */}
-          {gameState === 'event' && (
-            <div className="space-y-10 animate-in zoom-in-95 duration-500">
-              <section className="bg-slate-900 p-10 md:p-14 rounded-[3.5rem] border border-slate-800 space-y-10 shadow-2xl relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 to-purple-600" />
-                
-                <div className="flex justify-between items-center text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                  <span>Space Encounter</span>
-                  <span>Event {currentEvent + 1} of {SPACE_EVENTS.length}</span>
-                </div>
-
-                <div className="space-y-4">
-                  <h2 className="text-2xl md:text-3xl font-black text-white leading-tight italic">
-                    {SPACE_EVENTS[currentEvent].title}
-                  </h2>
-                  <p className="text-slate-300 text-sm leading-relaxed">
-                    {SPACE_EVENTS[currentEvent].desc}
-                  </p>
-                </div>
-
-                <div className="space-y-4 pt-6">
-                  {SPACE_EVENTS[currentEvent].options.map((option, idx) => (
-                    <button 
-                      key={idx}
-                      onClick={() => handleOptionSelect(option)}
-                      className="w-full p-6 bg-slate-950/40 hover:bg-slate-950 border border-slate-800 hover:border-indigo-500/50 rounded-2xl text-left transition-all duration-300 group flex items-start gap-4 active:scale-[0.99]"
-                    >
-                      <div className="w-8 h-8 rounded-full bg-slate-900 border border-slate-800 group-hover:bg-indigo-950 group-hover:border-indigo-500 flex items-center justify-center font-black text-xs text-indigo-400 shrink-0">
-                        {String.fromCharCode(65 + idx)}
-                      </div>
-                      <div className="space-y-2">
-                        <p className="text-sm font-bold text-white group-hover:text-indigo-300 transition-colors">
-                          {option.text}
-                        </p>
-                        <p className="text-xs text-slate-500 font-medium italic">
-                          💡 {option.effectText}
-                        </p>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </section>
-            </div>
-          )}
-
-          {/* SCREEN 4: DIAGNOSTIC DASHBOARD & UPGRADE LAB */}
-          {gameState === 'dashboard' && (
-            <div className="space-y-12 animate-in fade-in duration-1000 pb-20">
-              
-              {/* Mission Summary Banner */}
-              <div className="bg-gradient-to-r from-slate-900 to-slate-950 p-8 rounded-[2.5rem] border border-slate-800 flex flex-col md:flex-row justify-between items-center gap-6">
-                <div>
-                  <h3 className="text-lg font-black text-white italic">รายงานการประเมินสภาพยานอวกาศเรียบร้อยแล้ว!</h3>
-                  <p className="text-slate-400 text-xs mt-1">นี่คือสมรรถนะของยานคุณบนเส้นทางสู่กาแล็กซีความมั่งคั่ง</p>
-                </div>
-                <div className="flex gap-3">
-                  <button 
-                    onClick={() => setGameState('setup')}
-                    className="px-5 py-3 bg-slate-800 text-white rounded-xl text-xs font-black uppercase hover:bg-slate-700 transition"
-                  >
-                    ปรับแต่งโครงสร้างดั้งเดิม
-                  </button>
-                </div>
-              </div>
-
-              {/* Ratios Metrics Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                
-                {/* 1. Liquidity Ratio - Emergency Shield */}
-                <div className="bg-slate-900 p-8 rounded-[3rem] border border-slate-800 space-y-6 relative group hover:border-teal-500/30 transition-all">
-                  <div className="flex justify-between items-start">
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        <Shield className="text-teal-400" size={18} />
-                        <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest">Emergency Shield</h4>
-                      </div>
-                      <h3 className="text-2xl font-black text-white italic">เกราะสำรองสภาพคล่อง</h3>
-                    </div>
-                    <span className="text-[10px] font-bold text-teal-400 bg-teal-950/50 px-3 py-1 rounded-full border border-teal-900/30">
-                      {metrics.liquidityRatio.toFixed(1)}x ของรายจ่าย
-                    </span>
-                  </div>
-
-                  {/* Progress Bar */}
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-[10px] font-bold text-slate-500">
-                      <span>พลังเกราะป้องกัน</span>
-                      <span>{metrics.liquidityScore}%</span>
-                    </div>
-                    <div className="w-full bg-slate-950 h-3 rounded-full overflow-hidden p-0.5 border border-slate-800">
-                      <div 
-                        className="bg-gradient-to-r from-teal-500 to-emerald-400 h-full rounded-full transition-all duration-1000"
-                        style={{ width: `${metrics.liquidityScore}%` }}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="p-4 bg-slate-950/40 rounded-2xl text-xs text-slate-400 leading-relaxed italic">
-                    {metrics.liquidityRatio >= 3 ? (
-                      <span className="text-teal-400 font-bold">✨ ระบบเกราะแข็งแกร่งเป็นระเบียบ!</span>
-                    ) : (
-                      <span className="text-rose-400 font-bold">⚠️ เกราะบางเฉียบ! คุณกำลัง "เดินบนเส้นด้าย" หากเจอเรื่องคาดไม่ถึง ยานอาจอับปางได้</span>
-                    )}
-                    {" "} มีเงินสำรองฉุกเฉิน {metrics.liquidityRatio.toFixed(1)} เท่าของรายจ่ายรายเดือน (เป้าหมายที่ดีควรอยู่ที่ 3 - 6 เท่า)
-                  </div>
-                </div>
-
-                {/* 2. Savings Ratio - Hyperdrive Fuel */}
-                <div className="bg-slate-900 p-8 rounded-[3rem] border border-slate-800 space-y-6 relative group hover:border-amber-500/30 transition-all">
-                  <div className="flex justify-between items-start">
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        <Flame className="text-amber-400 animate-pulse" size={18} />
-                        <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest">Hyperdrive Fuel</h4>
-                      </div>
-                      <h3 className="text-2xl font-black text-white italic">อัตราออมขับเคลื่อนยาน</h3>
-                    </div>
-                    <span className="text-[10px] font-bold text-amber-400 bg-amber-950/50 px-3 py-1 rounded-full border border-amber-900/30">
-                      {Math.round(metrics.savingsRatio * 100)}% ของรายได้
-                    </span>
-                  </div>
-
-                  {/* Progress Bar */}
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-[10px] font-bold text-slate-500">
-                      <span>ประสิทธิภาพเชื้อเพลิง</span>
-                      <span>{metrics.savingsScore}%</span>
-                    </div>
-                    <div className="w-full bg-slate-950 h-3 rounded-full overflow-hidden p-0.5 border border-slate-800">
-                      <div 
-                        className="bg-gradient-to-r from-amber-500 to-orange-400 h-full rounded-full transition-all duration-1000"
-                        style={{ width: `${metrics.savingsScore}%` }}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="p-4 bg-slate-950/40 rounded-2xl text-xs text-slate-400 leading-relaxed italic">
-                    {metrics.savingsRatio >= 0.10 ? (
-                      <span className="text-amber-400 font-bold">✨ มุ่งสู่ความเร็วแสง!</span>
-                    ) : (
-                      <span className="text-rose-400 font-bold">⚠️ เครื่องยนต์ติดขัด! ยานของคุณกำลังแล่นช้าหรือลอยนิ่งอย่างไร้ทิศทาง</span>
-                    )}
-                    {" "} การออมไม่ใช่เงินที่เหลือจากใช้ แต่คือเงินที่ตัดออกทันทีตั้งแต่วันที่แร่อวกาศเข้าคลัง (เป้าหมายขั้นต่ำ 10% เพื่อรอยพึ่งพาตนเอง)
-                  </div>
-                </div>
-
-                {/* 3. Debt Ratio - Gravity Drag */}
-                <div className="bg-slate-900 p-8 rounded-[3rem] border border-slate-800 space-y-6 relative group hover:border-rose-500/30 transition-all">
-                  <div className="flex justify-between items-start">
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        <Scale className="text-rose-400" size={18} />
-                        <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest">Hull Gravity Drag</h4>
-                      </div>
-                      <h3 className="text-2xl font-black text-white italic">แรงโน้มถ่วงต้านทานหนี้</h3>
-                    </div>
-                    <span className="text-[10px] font-bold text-rose-400 bg-rose-950/50 px-3 py-1 rounded-full border border-rose-900/30">
-                      {Math.round(metrics.debtRatio * 100)}% ของรายได้
-                    </span>
-                  </div>
-
-                  {/* Progress Bar (Inverse - lower is better) */}
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-[10px] font-bold text-slate-500">
-                      <span>น้ำหนักต้านทาน (ยิ่งต่ำยิ่งวาร์ปได้เร็ว)</span>
-                      <span>{metrics.dragScore}%</span>
-                    </div>
-                    <div className="w-full bg-slate-950 h-3 rounded-full overflow-hidden p-0.5 border border-slate-800">
-                      <div 
-                        className={`h-full rounded-full transition-all duration-1000 ${metrics.debtRatio > 0.45 ? 'bg-gradient-to-r from-red-500 to-rose-600' : 'bg-gradient-to-r from-indigo-500 to-blue-400'}`}
-                        style={{ width: `${metrics.dragScore}%` }}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="p-4 bg-slate-950/40 rounded-2xl text-xs text-slate-400 leading-relaxed italic">
-                    {metrics.debtRatio <= 0.35 ? (
-                      <span className="text-emerald-400 font-bold">✨ ยานน้ำหนักเบาและยืดหยุ่นสูง!</span>
-                    ) : metrics.debtRatio <= 0.45 ? (
-                      <span className="text-amber-400 font-bold">⚠️ เริ่มตึงเครียด! ยานต้องแบกภาระมากเกินไปในอวกาศ</span>
-                    ) : (
-                      <span className="text-rose-400 font-bold">🚨 โครงสร้างยานใกล้รับไม่ไหว! คุณไม่ได้ทำงานขับยานเพื่อตัวเองแล้ว แต่คุณทำเพื่อธนาคารดาว</span>
-                    )}
-                    {" "} ดัชนีหนี้ปัจจุบันอยู่ที่ {Math.round(metrics.debtRatio * 100)}% (เกณฑ์สากลไม่ควรแบกเกิน 35% - 45%)
-                  </div>
-                </div>
-
-                {/* 4. Net Worth Ratio - Space Rank */}
-                <div className="bg-slate-900 p-8 rounded-[3rem] border border-slate-800 space-y-6 relative group hover:border-indigo-500/30 transition-all">
-                  <div className="flex justify-between items-start">
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        <Award className="text-indigo-400" size={18} />
-                        <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest">Explorer Space Rank</h4>
-                      </div>
-                      <h3 className="text-2xl font-black text-white italic">อันดับเกียรติยศนักสะสม</h3>
-                    </div>
-                    <span className="text-[10px] font-bold text-indigo-400 bg-indigo-950/50 px-3 py-1 rounded-full border border-indigo-900/30">
-                      ดัชนี {metrics.netWorthRatio.toFixed(2)}x
-                    </span>
-                  </div>
-
-                  {/* Progress Bar */}
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-[10px] font-bold text-slate-500">
-                      <span>เทียบเป้าหมายอายุดวงดาว</span>
-                      <span>{metrics.rankScore}%</span>
-                    </div>
-                    <div className="w-full bg-slate-950 h-3 rounded-full overflow-hidden p-0.5 border border-slate-800">
-                      <div 
-                        className="bg-gradient-to-r from-indigo-500 to-purple-500 h-full rounded-full transition-all duration-1000"
-                        style={{ width: `${metrics.rankScore}%` }}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="p-4 bg-slate-950/40 rounded-2xl text-xs text-slate-400 leading-relaxed italic">
-                    {metrics.netWorthRatio >= 1 ? (
-                      <span className="text-indigo-400 font-bold">✨ ระดับพลเรือเอกอวกาศ มั่งคั่งแซงเกณฑ์!</span>
-                    ) : (
-                      <span className="text-slate-400 font-bold">⚠️ ทำงานสะสมพลังมานาน แต่ยานยังไม่มีเนื้อหนังเป็นของตัวเองเท่าที่ควร</span>
-                    )}
-                    {" "} ความมั่งคั่งสุทธิเป้าหมายสำหรับคุณคือ ฿{Math.round(metrics.targetNetWorth).toLocaleString()} บาท (ขณะนี้คุณมีจริง ฿{Math.round(metrics.netWorth).toLocaleString()} บาท)
-                  </div>
-                </div>
-
-              </div>
-
-              {/* 🛠️ UPGRADE LAB (Interactive Sliders) */}
-              <section className="bg-gradient-to-b from-slate-900 to-slate-950 p-10 md:p-14 rounded-[3.5rem] border border-slate-800 space-y-10 shadow-2xl relative">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/5 blur-3xl rounded-full" />
-                
-                <div className="border-b border-slate-800 pb-6 flex items-center gap-4">
-                  <div className="p-3 bg-indigo-950 text-indigo-400 rounded-xl"><Sparkles size={20} /></div>
-                  <div>
-                    <h3 className="text-xl font-black text-white italic leading-none">Spaceship Upgrade Lab</h3>
-                    <p className="text-slate-500 text-xs mt-2">จำลองการปรับปรุงพฤติกรรมออมและการเงินของคุณ เพื่อดูการกัปตันยานวาร์ปได้เสถียรยิ่งขึ้น!</p>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  {/* Upgrade Controls */}
-                  <div className="space-y-6">
-                    <div className="space-y-2">
-                      <div className="flex justify-between items-center px-1">
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">เพิ่มเงินโปะออมต่อเดือน (฿)</label>
-                        <span className="text-xs font-mono font-bold text-indigo-400">+฿{(inputs.annualSavings / 12).toLocaleString(undefined, { maximumFractionDigits: 0 })} / เดือน</span>
-                      </div>
-                      <input 
-                        type="range"
-                        min="0"
-                        max="50000"
-                        step="1000"
-                        value={inputs.annualSavings / 12}
-                        onChange={(e) => handleInputChange('annualSavings', Number(e.target.value) * 12)}
-                        className="w-full h-2 bg-slate-950 rounded-full appearance-none cursor-pointer accent-indigo-500"
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <div className="flex justify-between items-center px-1">
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">ตัดค่าใช้จ่ายฟุ่มเฟือยเพื่อเอามาสร้างเกราะป้องกัน (฿)</label>
-                        <span className="text-xs font-mono font-bold text-teal-400">฿{inputs.liquidAssets.toLocaleString()} (สะสมในคลัง)</span>
-                      </div>
-                      <input 
-                        type="range"
-                        min="0"
-                        max="500000"
-                        step="5000"
-                        value={inputs.liquidAssets}
-                        onChange={(e) => handleInputChange('liquidAssets', e.target.value)}
-                        className="w-full h-2 bg-slate-950 rounded-full appearance-none cursor-pointer accent-teal-500"
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <div className="flex justify-between items-center px-1">
-                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">จำลองการลดภาระหนี้สินต่อเดือน (฿)</label>
-                        <span className="text-xs font-mono font-bold text-rose-400">฿{inputs.monthlyDebt.toLocaleString()} / เดือน</span>
-                      </div>
-                      <input 
-                        type="range"
-                        min="0"
-                        max="100000"
-                        step="1000"
-                        value={inputs.monthlyDebt}
-                        onChange={(e) => handleInputChange('monthlyDebt', e.target.value)}
-                        className="w-full h-2 bg-slate-950 rounded-full appearance-none cursor-pointer accent-rose-500"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Ship Diagnostic Status */}
-                  <div className="bg-slate-950/60 p-8 rounded-3xl border border-slate-800 flex flex-col justify-between">
-                    <div className="space-y-4">
-                      <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest">Real-time Spaceflight Status</h4>
-                      
-                      <div className="space-y-3 pt-2">
-                        <div className="flex justify-between items-center">
-                          <span className="text-xs font-bold text-slate-300">ความเสี่ยงยานล่ม (Crisis Probability)</span>
-                          <span className={`text-xs font-bold font-mono ${metrics.liquidityRatio < 3 || metrics.debtRatio > 0.45 ? 'text-rose-400' : 'text-emerald-400'}`}>
-                            {metrics.liquidityRatio < 3 || metrics.debtRatio > 0.45 ? 'วิกฤตความเสถียรต่ำ' : 'ปลอดภัยพร้อมเดินทาง'}
-                          </span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-xs font-bold text-slate-300">ความพร้อมบุกเบิกดาวดวงใหม่</span>
-                          <span className={`text-xs font-bold font-mono ${metrics.savingsRatio > 0.15 ? 'text-teal-400' : 'text-slate-500'}`}>
-                            {metrics.savingsRatio > 0.15 ? 'เต็มประสิทธิภาพ' : 'ต้องเร่งเครื่อง'}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="pt-8 border-t border-slate-800/80">
-                      <p className="text-[11px] text-slate-500 italic leading-relaxed">
-                        * ลองขยับสไลเดอร์อัปเกรดยาน เพื่อทดลองปรับโครงสร้างพฤติกรรมการเงินจนกว่ายานจะอยู่ในสภาวะ "ปลอดภัยพร้อมเดินทาง" และได้บาเรียที่ทนทานครับ
-                      </p>
-                    </div>
-                  </div>
-
-                </div>
-              </section>
-
-              {/* Game Replay Section */}
-              <div className="text-center pt-8">
-                <button 
-                  onClick={resetGame}
-                  className="px-8 py-4 bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white rounded-2xl text-xs font-black uppercase tracking-widest transition-colors shadow-lg border border-slate-800"
-                >
-                  ย้อนกลับสู่ระบบจำลองเหตุการณ์ภัยพิบัติ (Replay Game)
-                </button>
-              </div>
-
-            </div>
-          )}
-
-        </main>
-      </div>
-
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Prompt:ital,wght@0,300;0,400;0,700;0,900;1,400;1,900&display=swap');
-        
+    <style>
         body { 
           font-family: 'Prompt', sans-serif; 
           background-color: #090d16;
@@ -727,9 +44,771 @@ const App = () => {
           from { transform: rotate(0deg); }
           to { transform: rotate(360deg); }
         }
-      `}</style>
-    </div>
-  );
-};
 
-export default App;
+        /* Screen loading guard */
+        #root:empty::before {
+            content: 'กำลังอุ่นเครื่องยนต์ยานอวกาศ...';
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #6366f1;
+            font-weight: bold;
+            font-size: 1.25rem;
+            background-color: #090d16;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useMemo } = React;
+
+        // --- Custom SVG Icons to avoid external Lucide library fetch issues ---
+        const Shield = ({ size = 24, className = "" }) => (
+          <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+          </svg>
+        );
+
+        const Zap = ({ size = 24, className = "" }) => (
+          <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+          </svg>
+        );
+
+        const RotateCcw = ({ size = 24, className = "" }) => (
+          <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+            <path d="M1 4v6h6" />
+            <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
+          </svg>
+        );
+
+        const Play = ({ size = 24, className = "", fill = "none" }) => (
+          <svg width={size} height={size} viewBox="0 0 24 24" fill={fill} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+            <polygon points="5 3 19 12 5 21 5 3" />
+          </svg>
+        );
+
+        const ArrowRight = ({ size = 24, className = "" }) => (
+          <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+            <line x1="5" y1="12" x2="19" y2="12" />
+            <polyline points="12 5 19 12 12 19" />
+          </svg>
+        );
+
+        const ArrowUpRight = ({ size = 24, className = "" }) => (
+          <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+            <line x1="7" y1="17" x2="17" y2="7" />
+            <polyline points="7 7 17 7 17 17" />
+          </svg>
+        );
+
+        const Sparkles = ({ size = 24, className = "" }) => (
+          <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+            <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
+          </svg>
+        );
+
+        const SpaceIcon = ({ size = 24, className = "" }) => (
+          <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+            <circle cx="12" cy="12" r="10" />
+            <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" />
+          </svg>
+        );
+
+        const Flame = ({ size = 24, className = "" }) => (
+          <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+            <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z" />
+          </svg>
+        );
+
+        const Scale = ({ size = 24, className = "" }) => (
+          <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+            <path d="M16 16v1a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2v-1" />
+            <path d="M18 8h2a2 2 0 0 1 2 2v1" />
+            <path d="M2 8h2a2 2 0 0 1 2 2v1" />
+            <path d="M22 14v1a2 2 0 0 1-2 2h-3" />
+            <path d="M4 17H2c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h2" />
+            <path d="M8 2h8" />
+            <path d="M12 2v20" />
+            <path d="M3 22h18" />
+          </svg>
+        );
+
+        const Award = ({ size = 24, className = "" }) => (
+          <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+            <circle cx="12" cy="8" r="7" />
+            <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88" />
+          </svg>
+        );
+
+        const Info = ({ size = 24, className = "" }) => (
+          <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="16" x2="12" y2="12" />
+            <line x1="12" y1="8" x2="12.01" y2="8" />
+          </svg>
+        );
+
+        const CheckCircle2 = ({ size = 24, className = "" }) => (
+          <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+            <polyline points="22 4 12 14.01 9 11.01" />
+          </svg>
+        );
+
+        const AlertCircle = ({ size = 24, className = "" }) => (
+          <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="8" x2="12" y2="12" />
+            <line x1="12" y1="16" x2="12.01" y2="16" />
+          </svg>
+        );
+
+        // --- Core Application ---
+        const App = () => {
+          const [gameState, setGameState] = useState('welcome'); // welcome, setup, event, dashboard
+          const [inputs, setInputs] = useState({
+            age: 28,
+            monthlyIncome: 35000,
+            monthlyExpenses: 18000,
+            liquidAssets: 40000,
+            annualSavings: 42000,
+            monthlyDebt: 12000,
+            totalAssets: 150000,
+            totalDebts: 60000
+          });
+
+          const [currentEvent, setCurrentEvent] = useState(0);
+          const [eventHistory, setEventHistory] = useState([]);
+          const [statusMsg, setStatusMsg] = useState({ type: '', text: '' });
+
+          const SPACE_EVENTS = [
+            {
+              title: "🌌 พายุสุริยะพัดถล่มห้องเครื่อง!",
+              desc: "ระบบแจ้งเตือนว่ายานได้รับความเสียหายจากรังสี คาดว่าต้องใช้เงินสำรองฉุกเฉินซ่อมแซมทันที 30,000 บาท คุณจะทำอย่างไร?",
+              options: [
+                {
+                  text: "จ่ายด้วยเงินสดสำรองสภาพคล่องในคลังยาน",
+                  effectText: "ลดเกราะป้องกันสำรอง (Liquidity) ลงทันที แต่ไม่เพิ่มภาระหนี้",
+                  action: (prev) => ({
+                    ...prev,
+                    liquidAssets: Math.max(0, prev.liquidAssets - 30000),
+                    totalAssets: Math.max(0, prev.totalAssets - 30000)
+                  })
+                },
+                {
+                  text: "รูด 'Space Card' บัตรเครดิตอวกาศเพื่อแบ่งชำระรายเดือน 3,000 บาท/เดือน",
+                  effectText: "รักษาเกราะป้องกันไว้ได้ แต่เพิ่มน้ำหนักต้านทานยาน (Debt Service Ratio)",
+                  action: (prev) => ({
+                    ...prev,
+                    monthlyDebt: prev.monthlyDebt + 3000,
+                    totalDebts: prev.totalDebts + 30000
+                  })
+                }
+              ]
+            },
+            {
+              title: "☄️ ค้นพบแร่คริสตัลดวงดาวโบราณ!",
+              desc: "คุณค้นพบขุมทรัพย์ระหว่างทาง มูลค่าเทียบเท่าโบนัสก้อนโต 50,000 บาท! คุณต้องการจัดสรรพลังงานนี้อย่างไร?",
+              options: [
+                {
+                  text: "อัดฉีดเข้าห้องเชื้อเพลิงหลักทั้งหมด (เก็บออมทั้งหมด)",
+                  effectText: "เพิ่มพลังขับเคลื่อนวาร์ป (Savings Ratio) และเกราะป้องกันอย่างมหาศาล",
+                  action: (prev) => ({
+                    ...prev,
+                    liquidAssets: prev.liquidAssets + 50000,
+                    annualSavings: prev.annualSavings + 50000,
+                    totalAssets: prev.totalAssets + 50000
+                  })
+                },
+                {
+                  text: "ซื้อโมดูลตกแต่งห้องกัปตันและสิ่งอำนวยความสะดวกสุดหรูบนยาน",
+                  effectText: "ความสุขระยะสั้นเต็ม 100 แต่โครงสร้างและสมรรถนะของยานเท่าเดิม",
+                  action: (prev) => prev
+                }
+              ]
+            },
+            {
+              title: "🛡️ ตัวแทนสมาพันธ์กาแล็กซีขอลดหย่อนภาษีไอพ่น",
+              desc: "ทางการเสนอแญนออมเงินเพื่อหักภาษีอวกาศ คุณสามารถย้ายเงินส่วนหนึ่งไปออมแบบระยะยาว (SSF/RMF กาแล็กซี) ได้ผลตอบแทนคืน 10,000 บาท",
+              options: [
+                {
+                  text: "ตกลงเข้าร่วมแคมเปญ เพื่อดันอัตราการออมของยาน",
+                  effectText: "เพิ่มระบบขับเคลื่อนวาร์ป (Savings) และรับกองทุนสะสมเพิ่มขึ้น",
+                  action: (prev) => ({
+                    ...prev,
+                    annualSavings: prev.annualSavings + 10000,
+                    totalAssets: prev.totalAssets + 10000
+                  })
+                },
+                {
+                  text: "ปฏิเสธ เพราะอยากเก็บเงินสดไว้เฉย ๆ ดีกว่า",
+                  effectText: "ยานคงสภาพเดิม พลาดโอกาสประหยัดพลังงานเชื้อเพลิง",
+                  action: (prev) => prev
+                }
+              ]
+            }
+          ];
+
+          const metrics = useMemo(() => {
+            const { age, monthlyIncome, monthlyExpenses, liquidAssets, annualSavings, monthlyDebt, totalAssets, totalDebts } = inputs;
+            
+            const liquidityRatio = monthlyExpenses > 0 ? (liquidAssets / monthlyExpenses) : 0;
+            const liquidityScore = Math.min(100, Math.round((liquidityRatio / 6) * 100));
+            
+            const annualIncome = monthlyIncome * 12;
+            const savingsRatio = annualIncome > 0 ? (annualSavings / annualIncome) : 0;
+            const savingsScore = Math.min(100, Math.round((savingsRatio / 0.20) * 100));
+
+            const debtRatio = monthlyIncome > 0 ? (monthlyDebt / monthlyIncome) : 0;
+            const dragScore = Math.min(100, Math.round((debtRatio / 0.45) * 100));
+
+            const netWorth = totalAssets - totalDebts;
+            const targetNetWorth = (age * annualIncome) / 10;
+            const netWorthRatio = targetNetWorth > 0 ? (netWorth / targetNetWorth) : 0;
+            const rankScore = Math.min(100, Math.round(netWorthRatio * 100));
+
+            return {
+              liquidityRatio,
+              liquidityScore,
+              savingsRatio,
+              savingsScore,
+              debtRatio,
+              dragScore,
+              netWorth,
+              targetNetWorth,
+              netWorthRatio,
+              rankScore
+            };
+          }, [inputs]);
+
+          const handleOptionSelect = (option) => {
+            setInputs(prev => option.action(prev));
+            setEventHistory([...eventHistory, { eventIndex: currentEvent, choice: option.text }]);
+            
+            if (currentEvent < SPACE_EVENTS.length - 1) {
+              setCurrentEvent(currentEvent + 1);
+            } else {
+              setGameState('dashboard');
+            }
+          };
+
+          const handleInputChange = (field, val) => {
+            setInputs(prev => ({ ...prev, [field]: Number(val) }));
+          };
+
+          const resetGame = () => {
+            setGameState('welcome');
+            setCurrentEvent(0);
+            setEventHistory([]);
+          };
+
+          return (
+            <div className="min-h-screen bg-[#090d16] text-slate-100 font-sans selection:bg-indigo-500 selection:text-white pb-20 overflow-x-hidden relative">
+              <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-600/10 blur-[150px] pointer-events-none" />
+              <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-emerald-600/10 blur-[150px] pointer-events-none" />
+
+              <div className="max-w-4xl mx-auto px-6 pt-12">
+                <header className="flex flex-col sm:flex-row justify-between items-center mb-16 gap-6">
+                  <div className="flex items-center gap-4">
+                    <div className="p-4 bg-gradient-to-br from-indigo-500 to-purple-600 text-white rounded-2xl shadow-xl shadow-indigo-950/40 rotate-2 hover:rotate-0 transition-transform duration-300">
+                      <SpaceIcon size={32} className="animate-spin-slow" />
+                    </div>
+                    <div>
+                      <h1 className="text-3xl font-black tracking-tight text-white uppercase italic">Wealth <span className="text-indigo-400">Explorer</span></h1>
+                      <p className="text-slate-500 text-[10px] font-bold uppercase tracking-[0.3em] mt-1">Space Odyssey Diagnostic</p>
+                    </div>
+                  </div>
+                  {gameState !== 'welcome' && (
+                    <button 
+                      onClick={resetGame}
+                      className="px-5 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-xs font-black uppercase text-slate-400 hover:text-rose-400 hover:border-rose-950/50 transition-all flex items-center gap-2"
+                    >
+                      <RotateCcw size={14} /> สละยาน / เริ่มใหม่
+                    </button>
+                  )}
+                </header>
+
+                <main>
+                  {gameState === 'welcome' && (
+                    <div className="space-y-12 animate-in fade-in duration-700">
+                      <section className="bg-gradient-to-b from-slate-900 to-slate-950 p-12 rounded-[3.5rem] border border-slate-800 text-center space-y-8 relative overflow-hidden shadow-2xl">
+                        <div className="absolute -top-10 -right-10 w-40 h-40 bg-indigo-500/10 blur-3xl rounded-full" />
+                        
+                        <div className="space-y-4">
+                          <span className="px-4 py-1.5 bg-indigo-950 text-indigo-400 rounded-full text-[10px] font-black uppercase tracking-widest border border-indigo-900/50">Space Mission Ready</span>
+                          <h2 className="text-4xl md:text-5xl font-black italic tracking-tighter leading-tight text-white">
+                            เตรียมพร้อมส่งยาน <br/>ออกล่าสมบัติกาแล็กซี!
+                          </h2>
+                          <p className="text-slate-400 text-sm max-w-md mx-auto leading-relaxed">
+                            คุณได้รับมอบหมายให้คุมพวงมาลัยยานสำรวจเพื่อความมั่งคั่ง แต่ระวังให้ดี! สภาพยานของคุณจะเสถียรแค่ไหน ขึ้นอยู่กับวินัยและตัวเลขทางการเงินของคุณ
+                          </p>
+                        </div>
+
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-2xl mx-auto pt-4">
+                          <div className="p-4 bg-slate-900/50 rounded-2xl border border-slate-800/60 flex flex-col items-center gap-2">
+                            <Shield className="text-teal-400" size={24} />
+                            <span className="text-[10px] font-bold text-slate-500 uppercase">Emergency Shield</span>
+                          </div>
+                          <div className="p-4 bg-slate-900/50 rounded-2xl border border-slate-800/60 flex flex-col items-center gap-2">
+                            <Flame className="text-amber-400 animate-pulse" size={24} />
+                            <span className="text-[10px] font-bold text-slate-500 uppercase">Hyperdrive Fuel</span>
+                          </div>
+                          <div className="p-4 bg-slate-900/50 rounded-2xl border border-slate-800/60 flex flex-col items-center gap-2">
+                            <Scale className="text-rose-400" size={24} />
+                            <span className="text-[10px] font-bold text-slate-500 uppercase">Gravity Drag</span>
+                          </div>
+                          <div className="p-4 bg-slate-900/50 rounded-2xl border border-slate-800/60 flex flex-col items-center gap-2">
+                            <Award className="text-indigo-400" size={24} />
+                            <span className="text-[10px] font-bold text-slate-500 uppercase">Explorer Rank</span>
+                          </div>
+                        </div>
+
+                        <div className="pt-6">
+                          <button 
+                            onClick={() => setGameState('setup')}
+                            className="px-8 py-5 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-black rounded-2xl text-sm uppercase tracking-[0.2em] shadow-xl shadow-indigo-950/50 hover:scale-[1.03] active:scale-95 transition-all inline-flex items-center gap-3"
+                          >
+                            ตั้งพิกัดตัวเลขของคุณ <Play size={16} fill="currentColor" />
+                          </button>
+                        </div>
+                      </section>
+                    </div>
+                  )}
+
+                  {gameState === 'setup' && (
+                    <div className="space-y-10 animate-in slide-in-from-bottom-12 duration-500">
+                      <section className="bg-slate-900 p-10 md:p-14 rounded-[3.5rem] border border-slate-800 space-y-12 shadow-2xl">
+                        <div className="border-b border-slate-800 pb-6 flex items-center gap-4">
+                          <div className="w-10 h-10 bg-indigo-950 text-indigo-400 rounded-xl flex items-center justify-center font-black">1</div>
+                          <div>
+                            <h3 className="text-xl font-black text-white italic leading-none uppercase">Configure Spaceship Specs</h3>
+                            <p className="text-slate-500 text-xs mt-2">กรอกข้อมูลจริงเพื่อจำลองความแข็งแกร่งของยานของคุณ</p>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                          <div className="space-y-6">
+                            <div className="space-y-2">
+                              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">อายุอวกาศ (ปี)</label>
+                              <input 
+                                type="number" 
+                                value={inputs.age} 
+                                onChange={(e) => handleInputChange('age', e.target.value)}
+                                className="w-full p-4 bg-slate-950/60 border border-slate-800/80 rounded-xl font-mono text-sm font-bold text-white outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">รายได้ต่อเดือน (บาท)</label>
+                              <input 
+                                type="number" 
+                                value={inputs.monthlyIncome} 
+                                onChange={(e) => handleInputChange('monthlyIncome', e.target.value)}
+                                className="w-full p-4 bg-slate-950/60 border border-slate-800/80 rounded-xl font-mono text-sm font-bold text-white outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">รายจ่ายจำเป็นต่อเดือน (บาท)</label>
+                              <input 
+                                type="number" 
+                                value={inputs.monthlyExpenses} 
+                                onChange={(e) => handleInputChange('monthlyExpenses', e.target.value)}
+                                className="w-full p-4 bg-slate-950/60 border border-slate-800/80 rounded-xl font-mono text-sm font-bold text-white outline-none focus:border-indigo-500"
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">เงินออมสะสมทั้งปี (บาท)</label>
+                              <input 
+                                type="number" 
+                                value={inputs.annualSavings} 
+                                onChange={(e) => handleInputChange('annualSavings', e.target.value)}
+                                className="w-full p-4 bg-slate-950/60 border border-slate-800/80 rounded-xl font-mono text-sm font-bold text-white outline-none focus:border-indigo-500"
+                              />
+                            </div>
+                          </div>
+
+                          <div className="space-y-6">
+                            <div className="space-y-2">
+                              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">เงินสดสภาพคล่อง / ออมทรัพย์ (บาท)</label>
+                              <input 
+                                type="number" 
+                                value={inputs.liquidAssets} 
+                                onChange={(e) => handleInputChange('liquidAssets', e.target.value)}
+                                className="w-full p-4 bg-slate-950/60 border border-slate-800/80 rounded-xl font-mono text-sm font-bold text-white outline-none focus:border-indigo-500"
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">ภาระหนี้ผ่อนรายเดือน (บาท)</label>
+                              <input 
+                                type="number" 
+                                value={inputs.monthlyDebt} 
+                                onChange={(e) => handleInputChange('monthlyDebt', e.target.value)}
+                                className="w-full p-4 bg-slate-950/60 border border-slate-800/80 rounded-xl font-mono text-sm font-bold text-white outline-none focus:border-indigo-500"
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">สินทรัพย์ทั้งหมดที่มี (บ้าน, รถ, หุ้น, กองทุน)</label>
+                              <input 
+                                type="number" 
+                                value={inputs.totalAssets} 
+                                onChange={(e) => handleInputChange('totalAssets', e.target.value)}
+                                className="w-full p-4 bg-slate-950/60 border border-slate-800/80 rounded-xl font-mono text-sm font-bold text-white outline-none focus:border-indigo-500"
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">หนี้สินทั้งหมดที่มี (บ้าน, รถ, บัตรเครดิต)</label>
+                              <input 
+                                type="number" 
+                                value={inputs.totalDebts} 
+                                onChange={(e) => handleInputChange('totalDebts', e.target.value)}
+                                className="w-full p-4 bg-slate-950/60 border border-slate-800/80 rounded-xl font-mono text-sm font-bold text-white outline-none focus:border-indigo-500"
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="pt-4">
+                          <button 
+                            onClick={() => setGameState('event')}
+                            className="w-full py-6 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-black rounded-2xl text-xs uppercase tracking-[0.2em] shadow-xl hover:opacity-90 active:scale-[0.99] transition-all flex items-center justify-center gap-3"
+                          >
+                            ยืนยันพิกัดและปล่อยตัวยานอวกาศ <ArrowRight size={16} />
+                          </button>
+                        </div>
+                      </section>
+                    </div>
+                  )}
+
+                  {gameState === 'event' && (
+                    <div className="space-y-10 animate-in zoom-in-95 duration-500">
+                      <section className="bg-slate-900 p-10 md:p-14 rounded-[3.5rem] border border-slate-800 space-y-10 shadow-2xl relative overflow-hidden">
+                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 to-purple-600" />
+                        
+                        <div className="flex justify-between items-center text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                          <span>Space Encounter</span>
+                          <span>Event {currentEvent + 1} of {SPACE_EVENTS.length}</span>
+                        </div>
+
+                        <div className="space-y-4">
+                          <h2 className="text-2xl md:text-3xl font-black text-white leading-tight italic">
+                            {SPACE_EVENTS[currentEvent].title}
+                          </h2>
+                          <p className="text-slate-300 text-sm leading-relaxed">
+                            {SPACE_EVENTS[currentEvent].desc}
+                          </p>
+                        </div>
+
+                        <div className="space-y-4 pt-6">
+                          {SPACE_EVENTS[currentEvent].options.map((option, idx) => (
+                            <button 
+                              key={idx}
+                              onClick={() => handleOptionSelect(option)}
+                              className="w-full p-6 bg-slate-950/40 hover:bg-slate-950 border border-slate-800 hover:border-indigo-500/50 rounded-2xl text-left transition-all duration-300 group flex items-start gap-4 active:scale-[0.99]"
+                            >
+                              <div className="w-8 h-8 rounded-full bg-slate-900 border border-slate-800 group-hover:bg-indigo-950 group-hover:border-indigo-500 flex items-center justify-center font-black text-xs text-indigo-400 shrink-0">
+                                {String.fromCharCode(65 + idx)}
+                              </div>
+                              <div className="space-y-2">
+                                <p className="text-sm font-bold text-white group-hover:text-indigo-300 transition-colors">
+                                  {option.text}
+                                </p>
+                                <p className="text-xs text-slate-500 font-medium italic">
+                                  💡 {option.effectText}
+                                </p>
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      </section>
+                    </div>
+                  )}
+
+                  {gameState === 'dashboard' && (
+                    <div className="space-y-12 animate-in fade-in duration-1000 pb-20">
+                      <div className="bg-gradient-to-r from-slate-900 to-slate-950 p-8 rounded-[2.5rem] border border-slate-800 flex flex-col md:flex-row justify-between items-center gap-6">
+                        <div>
+                          <h3 className="text-lg font-black text-white italic">รายงานการประเมินสภาพยานอวกาศเรียบร้อยแล้ว!</h3>
+                          <p className="text-slate-400 text-xs mt-1">นี่คือสมรรถนะของยานคุณบนเส้นทางสู่กาแล็กซีความมั่งคั่ง</p>
+                        </div>
+                        <div className="flex gap-3">
+                          <button 
+                            onClick={() => setGameState('setup')}
+                            className="px-5 py-3 bg-slate-800 text-white rounded-xl text-xs font-black uppercase hover:bg-slate-700 transition"
+                          >
+                            ปรับแต่งโครงสร้างดั้งเดิม
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        {/* Liquidity */}
+                        <div className="bg-slate-900 p-8 rounded-[3rem] border border-slate-800 space-y-6 relative group hover:border-teal-500/30 transition-all">
+                          <div className="flex justify-between items-start">
+                            <div className="space-y-1">
+                              <div className="flex items-center gap-2">
+                                <Shield className="text-teal-400" size={18} />
+                                <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest">Emergency Shield</h4>
+                              </div>
+                              <h3 className="text-2xl font-black text-white italic">เกราะสำรองสภาพคล่อง</h3>
+                            </div>
+                            <span className="text-[10px] font-bold text-teal-400 bg-teal-950/50 px-3 py-1 rounded-full border border-teal-900/30">
+                              {metrics.liquidityRatio.toFixed(1)}x ของรายจ่าย
+                            </span>
+                          </div>
+
+                          <div className="space-y-2">
+                            <div className="flex justify-between text-[10px] font-bold text-slate-500">
+                              <span>พลังเกราะป้องกัน</span>
+                              <span>{metrics.liquidityScore}%</span>
+                            </div>
+                            <div className="w-full bg-slate-950 h-3 rounded-full overflow-hidden p-0.5 border border-slate-800">
+                              <div 
+                                className="bg-gradient-to-r from-teal-500 to-emerald-400 h-full rounded-full transition-all duration-1000"
+                                style={{ width: `${metrics.liquidityScore}%` }}
+                              />
+                            </div>
+                          </div>
+
+                          <div className="p-4 bg-slate-950/40 rounded-2xl text-xs text-slate-400 leading-relaxed italic">
+                            {metrics.liquidityRatio >= 3 ? (
+                              <span className="text-teal-400 font-bold">✨ ระบบเกราะแข็งแกร่งเป็นระเบียบ!</span>
+                            ) : (
+                              <span className="text-rose-400 font-bold">⚠️ เกราะบางเฉียบ! คุณกำลัง "เดินบนเส้นด้าย" หากเจอเรื่องคาดไม่ถึง ยานอาจอับปางได้</span>
+                            )}
+                            {" "} มีเงินสำรองฉุกเฉิน {metrics.liquidityRatio.toFixed(1)} เท่าของรายจ่ายรายเดือน (เป้าหมายที่ดีควรอยู่ที่ 3 - 6 เท่า)
+                          </div>
+                        </div>
+
+                        {/* Savings */}
+                        <div className="bg-slate-900 p-8 rounded-[3rem] border border-slate-800 space-y-6 relative group hover:border-amber-500/30 transition-all">
+                          <div className="flex justify-between items-start">
+                            <div className="space-y-1">
+                              <div className="flex items-center gap-2">
+                                <Flame className="text-amber-400" size={18} />
+                                <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest">Hyperdrive Fuel</h4>
+                              </div>
+                              <h3 className="text-2xl font-black text-white italic">อัตราออมขับเคลื่อนยาน</h3>
+                            </div>
+                            <span className="text-[10px] font-bold text-amber-400 bg-amber-950/50 px-3 py-1 rounded-full border border-amber-900/30">
+                              {Math.round(metrics.savingsRatio * 100)}% ของรายได้
+                            </span>
+                          </div>
+
+                          <div className="space-y-2">
+                            <div className="flex justify-between text-[10px] font-bold text-slate-500">
+                              <span>ประสิทธิภาพเชื้อเพลิง</span>
+                              <span>{metrics.savingsScore}%</span>
+                            </div>
+                            <div className="w-full bg-slate-950 h-3 rounded-full overflow-hidden p-0.5 border border-slate-800">
+                              <div 
+                                className="bg-gradient-to-r from-amber-500 to-orange-400 h-full rounded-full transition-all duration-1000"
+                                style={{ width: `${metrics.savingsScore}%` }}
+                              />
+                            </div>
+                          </div>
+
+                          <div className="p-4 bg-slate-950/40 rounded-2xl text-xs text-slate-400 leading-relaxed italic">
+                            {metrics.savingsRatio >= 0.10 ? (
+                              <span className="text-amber-400 font-bold">✨ มุ่งสู่ความเร็วแสง!</span>
+                            ) : (
+                              <span className="text-rose-400 font-bold">⚠️ เครื่องยนต์ติดขัด! ยานของคุณกำลังแล่นช้าหรือลอยนิ่งอย่างไร้ทิศทาง</span>
+                            )}
+                            {" "} การออมไม่ใช่เงินที่เหลือจากใช้ แต่คือเงินที่ตัดออกทันทีตั้งแต่วันที่แร่อวกาศเข้าคลัง (เป้าหมายขั้นต่ำ 10% เพื่อรอยพึ่งพาตนเอง)
+                          </div>
+                        </div>
+
+                        {/* Debt */}
+                        <div className="bg-slate-900 p-8 rounded-[3rem] border border-slate-800 space-y-6 relative group hover:border-rose-500/30 transition-all">
+                          <div className="flex justify-between items-start">
+                            <div className="space-y-1">
+                              <div className="flex items-center gap-2">
+                                <Scale className="text-rose-400" size={18} />
+                                <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest">Hull Gravity Drag</h4>
+                              </div>
+                              <h3 className="text-2xl font-black text-white italic">แรงโน้มถ่วงต้านทานหนี้</h3>
+                            </div>
+                            <span className="text-[10px] font-bold text-rose-400 bg-rose-950/50 px-3 py-1 rounded-full border border-rose-900/30">
+                              {Math.round(metrics.debtRatio * 100)}% ของรายได้
+                            </span>
+                          </div>
+
+                          <div className="space-y-2">
+                            <div className="flex justify-between text-[10px] font-bold text-slate-500">
+                              <span>น้ำหนักต้านทาน (ยิ่งต่ำยิ่งวาร์ปได้เร็ว)</span>
+                              <span>{metrics.dragScore}%</span>
+                            </div>
+                            <div className="w-full bg-slate-950 h-3 rounded-full overflow-hidden p-0.5 border border-slate-800">
+                              <div 
+                                className={`h-full rounded-full transition-all duration-1000 ${metrics.debtRatio > 0.45 ? 'bg-gradient-to-r from-red-500 to-rose-600' : 'bg-gradient-to-r from-indigo-500 to-blue-400'}`}
+                                style={{ width: `${metrics.dragScore}%` }}
+                              />
+                            </div>
+                          </div>
+
+                          <div className="p-4 bg-slate-950/40 rounded-2xl text-xs text-slate-400 leading-relaxed italic">
+                            {metrics.debtRatio <= 0.35 ? (
+                              <span className="text-emerald-400 font-bold">✨ ยานน้ำหนักเบาและยืดหยุ่นสูง!</span>
+                            ) : metrics.debtRatio <= 0.45 ? (
+                              <span className="text-amber-400 font-bold">⚠️ เริ่มตึงเครียด! ยานต้องแบกภาระมากเกินไปในอวกาศ</span>
+                            ) : (
+                              <span className="text-rose-400 font-bold">🚨 โครงสร้างยานใกล้รับไม่ไหว! คุณไม่ได้ทำงานขับยานเพื่อตัวเองแล้ว แต่คุณทำเพื่อธนาคารดาว</span>
+                            )}
+                            {" "} ดัชนีหนี้ปัจจุบันอยู่ที่ {Math.round(metrics.debtRatio * 100)}% (เกณฑ์สากลไม่ควรแบกเกิน 35% - 45%)
+                          </div>
+                        </div>
+
+                        {/* Net Worth */}
+                        <div className="bg-slate-900 p-8 rounded-[3rem] border border-slate-800 space-y-6 relative group hover:border-indigo-500/30 transition-all">
+                          <div className="flex justify-between items-start">
+                            <div className="space-y-1">
+                              <div className="flex items-center gap-2">
+                                <Award className="text-indigo-400" size={18} />
+                                <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest">Explorer Space Rank</h4>
+                              </div>
+                              <h3 className="text-2xl font-black text-white italic">อันดับเกียรติยศนักสะสม</h3>
+                            </div>
+                            <span className="text-[10px] font-bold text-indigo-400 bg-indigo-950/50 px-3 py-1 rounded-full border border-indigo-900/30">
+                              ดัชนี {metrics.netWorthRatio.toFixed(2)}x
+                            </span>
+                          </div>
+
+                          <div className="space-y-2">
+                            <div className="flex justify-between text-[10px] font-bold text-slate-500">
+                              <span>เทียบเป้าหมายอายุดวงดาว</span>
+                              <span>{metrics.rankScore}%</span>
+                            </div>
+                            <div className="w-full bg-slate-950 h-3 rounded-full overflow-hidden p-0.5 border border-slate-800">
+                              <div 
+                                className="bg-gradient-to-r from-indigo-500 to-purple-500 h-full rounded-full transition-all duration-1000"
+                                style={{ width: `${metrics.rankScore}%` }}
+                              />
+                            </div>
+                          </div>
+
+                          <div className="p-4 bg-slate-950/40 rounded-2xl text-xs text-slate-400 leading-relaxed italic">
+                            {metrics.netWorthRatio >= 1 ? (
+                              <span className="text-indigo-400 font-bold">✨ ระดับพลเรือเอกอวกาศ มั่งคั่งแซงเกณฑ์!</span>
+                            ) : (
+                              <span className="text-slate-400 font-bold">⚠️ ทำงานสะสมพลังมานาน แต่ยานยังไม่มีเนื้อหนังเป็นของตัวเองเท่าที่ควร</span>
+                            )}
+                            {" "} ความมั่งคั่งสุทธิเป้าหมายสำหรับคุณคือ ฿{Math.round(metrics.targetNetWorth).toLocaleString()} บาท (ขณะนี้คุณมีจริง ฿{Math.round(metrics.netWorth).toLocaleString()} บาท)
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Upgrade Lab */}
+                      <section className="bg-gradient-to-b from-slate-900 to-slate-950 p-10 md:p-14 rounded-[3.5rem] border border-slate-800 space-y-10 shadow-2xl relative">
+                        <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/5 blur-3xl rounded-full" />
+                        
+                        <div className="border-b border-slate-800 pb-6 flex items-center gap-4">
+                          <div className="p-3 bg-indigo-950 text-indigo-400 rounded-xl"><Sparkles size={20} /></div>
+                          <div>
+                            <h3 className="text-xl font-black text-white italic leading-none">Spaceship Upgrade Lab</h3>
+                            <p className="text-slate-500 text-xs mt-2">จำลองการปรับปรุงพฤติกรรมออมและการเงินของคุณ เพื่อดูการกัปตันยานวาร์ปได้เสถียรยิ่งขึ้น!</p>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                          <div className="space-y-6">
+                            <div className="space-y-2">
+                              <div className="flex justify-between items-center px-1">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">เพิ่มเงินโปะออมต่อเดือน (฿)</label>
+                                <span className="text-xs font-mono font-bold text-indigo-400">+฿{(inputs.annualSavings / 12).toLocaleString(undefined, { maximumFractionDigits: 0 })} / เดือน</span>
+                              </div>
+                              <input 
+                                type="range"
+                                min="0"
+                                max="50000"
+                                step="1000"
+                                value={inputs.annualSavings / 12}
+                                onChange={(e) => handleInputChange('annualSavings', Number(e.target.value) * 12)}
+                                className="w-full h-2 bg-slate-950 rounded-full appearance-none cursor-pointer accent-indigo-500"
+                              />
+                            </div>
+
+                            <div className="space-y-2">
+                              <div className="flex justify-between items-center px-1">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">ตัดค่าใช้จ่ายฟุ่มเฟือยเพื่อเอามาสร้างเกราะป้องกัน (฿)</label>
+                                <span className="text-xs font-mono font-bold text-teal-400">฿{inputs.liquidAssets.toLocaleString()} (สะสมในคลัง)</span>
+                              </div>
+                              <input 
+                                type="range"
+                                min="0"
+                                max="500000"
+                                step="5000"
+                                value={inputs.liquidAssets}
+                                onChange={(e) => handleInputChange('liquidAssets', e.target.value)}
+                                className="w-full h-2 bg-slate-950 rounded-full appearance-none cursor-pointer accent-teal-500"
+                              />
+                            </div>
+
+                            <div className="space-y-2">
+                              <div className="flex justify-between items-center px-1">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">จำลองการลดภาระหนี้สินต่อเดือน (฿)</label>
+                                <span className="text-xs font-mono font-bold text-rose-400">฿{inputs.monthlyDebt.toLocaleString()} / เดือน</span>
+                              </div>
+                              <input 
+                                type="range"
+                                min="0"
+                                max="100000"
+                                step="1000"
+                                value={inputs.monthlyDebt}
+                                onChange={(e) => handleInputChange('monthlyDebt', e.target.value)}
+                                className="w-full h-2 bg-slate-950 rounded-full appearance-none cursor-pointer accent-rose-500"
+                              />
+                            </div>
+                          </div>
+
+                          <div className="bg-slate-950/60 p-8 rounded-3xl border border-slate-800 flex flex-col justify-between">
+                            <div className="space-y-4">
+                              <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest">Real-time Spaceflight Status</h4>
+                              
+                              <div className="space-y-3 pt-2">
+                                <div className="flex justify-between items-center">
+                                  <span className="text-xs font-bold text-slate-300">ความเสี่ยงยานล่ม (Crisis Probability)</span>
+                                  <span className={`text-xs font-bold font-mono ${metrics.liquidityRatio < 3 || metrics.debtRatio > 0.45 ? 'text-rose-400' : 'text-emerald-400'}`}>
+                                    {metrics.liquidityRatio < 3 || metrics.debtRatio > 0.45 ? 'วิกฤตความเสถียรต่ำ' : 'ปลอดภัยพร้อมเดินทาง'}
+                                  </span>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                  <span className="text-xs font-bold text-slate-300">ความพร้อมบุกเบิกดาวดวงใหม่</span>
+                                  <span className={`text-xs font-bold font-mono ${metrics.savingsRatio > 0.15 ? 'text-teal-400' : 'text-slate-500'}`}>
+                                    {metrics.savingsRatio > 0.15 ? 'เต็มประสิทธิภาพ' : 'ต้องเร่งเครื่อง'}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="pt-8 border-t border-slate-800/80">
+                              <p className="text-[11px] text-slate-500 italic leading-relaxed">
+                                * ลองขยับสไลเดอร์อัปเกรดยาน เพื่อทดลองปรับโครงสร้างพฤติกรรมการเงินจนกว่ายานจะอยู่ในสภาวะ "ปลอดภัยพร้อมเดินทาง" และได้บาเรียที่ทนทานครับ
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </section>
+
+                      <div className="text-center pt-8">
+                        <button 
+                          onClick={resetGame}
+                          className="px-8 py-4 bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white rounded-2xl text-xs font-black uppercase tracking-widest transition-colors shadow-lg border border-slate-800"
+                        >
+                          ย้อนกลับสู่ระบบจำลองเหตุการณ์ภัยพิบัติ (Replay Game)
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </main>
+              </div>
+            </div>
+          );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
