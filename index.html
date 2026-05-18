@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wealth Explorer: Space Odyssey Game (Booth Edition)</title>
+    <title>Wealth Explorer: Space Odyssey Game (PhillipCapital Edition)</title>
     <!-- React & ReactDOM CDN -->
     <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
@@ -51,7 +51,7 @@
 
         /* Screen loading guard */
         #root:empty::before {
-            content: 'กำลังอุ่นเครื่องยนต์ยานอวกาศระบบจัดบูธด่วน...';
+            content: 'กำลังอุ่นเครื่องยนต์ยานอวกาศระบบสำรวจด่วน...';
             display: flex;
             justify-content: center;
             align-items: center;
@@ -321,7 +321,7 @@
                     </div>
                     <div>
                       <h1 className="text-3xl font-black tracking-tight text-white uppercase italic">Wealth <span className="text-indigo-400">Explorer</span></h1>
-                      <p className="text-slate-500 text-[10px] font-bold uppercase tracking-[0.3em] mt-1 text-indigo-300/80">🚀 BOOTH & EVENT KIOSK EDITION</p>
+                      <p className="text-slate-500 text-[10px] font-bold uppercase tracking-[0.3em] mt-1 text-indigo-300/80">🚀 BY PHILLIPCAPITAL</p>
                     </div>
                   </div>
                   {gameState !== 'welcome' && (
@@ -376,7 +376,7 @@
                             onClick={() => setGameState('preset_select')}
                             className="px-8 py-5 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-black rounded-2xl text-sm uppercase tracking-[0.2em] shadow-xl shadow-indigo-950/50 hover:scale-[1.03] active:scale-95 transition-all inline-flex items-center gap-3"
                           >
-                            เริ่มต้นภารกิจจัดบูธ <Play size={16} fill="currentColor" />
+                            เริ่มต้นภารกิจ <Play size={16} fill="currentColor" />
                           </button>
                         </div>
                       </section>
