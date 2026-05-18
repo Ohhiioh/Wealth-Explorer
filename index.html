@@ -40,6 +40,18 @@
           background-color: #6366f1;
         }
 
+        /* Hide scrollbar/spinner for Chrome, Safari, Edge, Opera */
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+          -webkit-appearance: none;
+          margin: 0;
+        }
+
+        /* Hide spinner for Firefox */
+        input[type=number] {
+          -moz-appearance: textfield;
+        }
+
         .animate-spin-slow {
           animation: spin 12s linear infinite;
         }
@@ -187,8 +199,8 @@
                   effectText: "ลดเกราะป้องกันสำรอง (Liquidity) ลงทันที แต่ไม่เพิ่มภาระหนี้",
                   action: (prev) => ({
                     ...prev,
-                    liquidAssets: Math.max(0, prev.liquidAssets - 30000),
-                    totalAssets: Math.max(0, prev.totalAssets - 30000)
+                    liquidAssets: Math.max(0, (Number(prev.liquidAssets) || 0) - 30000),
+                    totalAssets: Math.max(0, (Number(prev.totalAssets) || 0) - 30000)
                   })
                 },
                 {
@@ -196,8 +208,8 @@
                   effectText: "รักษาเกราะป้องกันไว้ได้ แต่เพิ่มน้ำหนักต้านทานยาน (Debt Service Ratio)",
                   action: (prev) => ({
                     ...prev,
-                    monthlyDebt: prev.monthlyDebt + 3000,
-                    totalDebts: prev.totalDebts + 30000
+                    monthlyDebt: (Number(prev.monthlyDebt) || 0) + 3000,
+                    totalDebts: (Number(prev.totalDebts) || 0) + 30000
                   })
                 }
               ]
@@ -211,9 +223,9 @@
                   effectText: "เพิ่มพลังขับเคลื่อนวาร์ป (Savings Ratio) และเกราะป้องกันอย่างมหาศาล",
                   action: (prev) => ({
                     ...prev,
-                    liquidAssets: prev.liquidAssets + 50000,
-                    annualSavings: prev.annualSavings + 50000,
-                    totalAssets: prev.totalAssets + 50000
+                    liquidAssets: (Number(prev.liquidAssets) || 0) + 50000,
+                    annualSavings: (Number(prev.annualSavings) || 0) + 50000,
+                    totalAssets: (Number(prev.totalAssets) || 0) + 50000
                   })
                 },
                 {
@@ -232,8 +244,8 @@
                   effectText: "เพิ่มระบบขับเคลื่อนวาร์ป (Savings) และรับกองทุนสะสมเพิ่มขึ้น",
                   action: (prev) => ({
                     ...prev,
-                    annualSavings: prev.annualSavings + 10000,
-                    totalAssets: prev.totalAssets + 10000
+                    annualSavings: (Number(prev.annualSavings) || 0) + 10000,
+                    totalAssets: (Number(prev.totalAssets) || 0) + 10000
                   })
                 },
                 {
@@ -246,7 +258,15 @@
           ];
 
           const metrics = useMemo(() => {
-            const { age, monthlyIncome, monthlyExpenses, liquidAssets, annualSavings, monthlyDebt, totalAssets, totalDebts } = inputs;
+            // ป้องกันการคำนวณพังในขณะที่ผู้ใช้งานเคลียร์ช่อง input ว่างเพื่อพิมพ์ใหม่
+            const age = Number(inputs.age) || 0;
+            const monthlyIncome = Number(inputs.monthlyIncome) || 0;
+            const monthlyExpenses = Number(inputs.monthlyExpenses) || 0;
+            const liquidAssets = Number(inputs.liquidAssets) || 0;
+            const annualSavings = Number(inputs.annualSavings) || 0;
+            const monthlyDebt = Number(inputs.monthlyDebt) || 0;
+            const totalAssets = Number(inputs.totalAssets) || 0;
+            const totalDebts = Number(inputs.totalDebts) || 0;
             
             const liquidityRatio = monthlyExpenses > 0 ? (liquidAssets / monthlyExpenses) : 0;
             const liquidityScore = Math.min(100, Math.round((liquidityRatio / 6) * 100));
@@ -289,7 +309,11 @@
           };
 
           const handleInputChange = (field, val) => {
-            setInputs(prev => ({ ...prev, [field]: Number(val) }));
+            // อนุญาตให้ค่าใน State เป็นค่าว่างชั่วคราวได้เวลาผู้เล่นลบช่องเพื่อเตรียมพิมพ์ใหม่
+            setInputs(prev => ({ 
+              ...prev, 
+              [field]: val === '' ? '' : Number(val) 
+            }));
           };
 
           const handlePresetSelect = (preset) => {
@@ -391,7 +415,7 @@
                           <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest bg-indigo-950/50 px-3 py-1 rounded-full border border-indigo-900/30">ขั้นตอนที่ 1 จาก 2</span>
                           <h3 className="text-2xl font-black text-white italic uppercase pt-2">เลือกสไตล์ยานรบที่ใกล้เคียงคุณ</h3>
                           <p className="text-slate-400 text-xs leading-relaxed">
-                            ระบุกลุ่มที่ใกล้เคียงสถานะปัจจุบันของคุณที่สุด ระบบจะกรอกตัวเลขอ้างอิงพื้นฐานรอไว้ทันทีเพื่อความรวดเร็วสูงสุด
+                            ระบุกลุ่มที่ใกล้เคียงสถานะปัจจุบันของคุณที่สุด ระบบจะกรอกตัวเลอย้างอิงพื้นฐานรอไว้ทันทีเพื่อความรวดเร็วสูงสุด
                           </p>
                         </div>
 
@@ -432,7 +456,7 @@
                             <div className="w-10 h-10 bg-indigo-950 text-indigo-400 rounded-xl flex items-center justify-center font-black">2</div>
                             <div>
                               <h3 className="text-xl font-black text-white italic leading-none uppercase">ปรับจูนสเปกค่ายานด่วน</h3>
-                              <p className="text-slate-500 text-xs mt-2">ปรับแต่งตัวเลขสำคัญให้สอดคล้องกับคุณได้ง่าย ๆ เพียงเลื่อนสไลเดอร์</p>
+                              <p className="text-slate-500 text-xs mt-2">พิมพ์ตัวเลขในช่องหรือใช้นิ้วเลื่อนแถบสไลเดอร์เพื่อความแม่นยำสูงสุด</p>
                             </div>
                           </div>
                           <span className="text-[10px] font-black text-slate-400 bg-slate-950 border border-slate-800 px-3 py-1 rounded-full uppercase">
@@ -448,13 +472,22 @@
                             <div className="space-y-2">
                               <div className="flex justify-between items-center">
                                 <label className="text-[11px] font-black text-slate-400 uppercase tracking-wider">อายุของคุณ (ปี)</label>
-                                <span className="text-sm font-mono font-bold text-indigo-400">{inputs.age} ปี</span>
+                                <div className="flex items-center gap-1.5">
+                                  <input 
+                                    type="number"
+                                    value={inputs.age}
+                                    onChange={(e) => handleInputChange('age', e.target.value)}
+                                    className="w-20 px-2 py-1 bg-slate-950 border border-slate-800 rounded-lg text-right text-xs font-mono font-bold text-indigo-400 focus:outline-none focus:border-indigo-500 transition-colors"
+                                    placeholder="อายุ"
+                                  />
+                                  <span className="text-xs text-slate-500 font-bold">ปี</span>
+                                </div>
                               </div>
                               <input 
                                 type="range"
                                 min="18"
                                 max="70"
-                                value={inputs.age}
+                                value={inputs.age || 0}
                                 onChange={(e) => handleInputChange('age', e.target.value)}
                                 className="w-full h-2 bg-slate-950 rounded-full appearance-none cursor-pointer accent-indigo-500"
                               />
@@ -463,14 +496,23 @@
                             <div className="space-y-2">
                               <div className="flex justify-between items-center">
                                 <label className="text-[11px] font-black text-slate-400 uppercase tracking-wider">รายได้รวมต่อเดือน (บาท)</label>
-                                <span className="text-sm font-mono font-bold text-indigo-400">฿{inputs.monthlyIncome.toLocaleString()}</span>
+                                <div className="flex items-center gap-1.5">
+                                  <span className="text-xs text-slate-500 font-bold">฿</span>
+                                  <input 
+                                    type="number"
+                                    value={inputs.monthlyIncome}
+                                    onChange={(e) => handleInputChange('monthlyIncome', e.target.value)}
+                                    className="w-28 px-2 py-1 bg-slate-950 border border-slate-800 rounded-lg text-right text-xs font-mono font-bold text-indigo-400 focus:outline-none focus:border-indigo-500 transition-colors"
+                                    placeholder="รายได้"
+                                  />
+                                </div>
                               </div>
                               <input 
                                 type="range"
                                 min="15000"
                                 max="300000"
                                 step="5000"
-                                value={inputs.monthlyIncome}
+                                value={inputs.monthlyIncome || 0}
                                 onChange={(e) => handleInputChange('monthlyIncome', e.target.value)}
                                 className="w-full h-2 bg-slate-950 rounded-full appearance-none cursor-pointer accent-indigo-500"
                               />
@@ -479,14 +521,23 @@
                             <div className="space-y-2">
                               <div className="flex justify-between items-center">
                                 <label className="text-[11px] font-black text-slate-400 uppercase tracking-wider">รายจ่ายต่อเดือน (บาท)</label>
-                                <span className="text-sm font-mono font-bold text-indigo-400">฿{inputs.monthlyExpenses.toLocaleString()}</span>
+                                <div className="flex items-center gap-1.5">
+                                  <span className="text-xs text-slate-500 font-bold">฿</span>
+                                  <input 
+                                    type="number"
+                                    value={inputs.monthlyExpenses}
+                                    onChange={(e) => handleInputChange('monthlyExpenses', e.target.value)}
+                                    className="w-28 px-2 py-1 bg-slate-950 border border-slate-800 rounded-lg text-right text-xs font-mono font-bold text-indigo-400 focus:outline-none focus:border-indigo-500 transition-colors"
+                                    placeholder="รายจ่าย"
+                                  />
+                                </div>
                               </div>
                               <input 
                                 type="range"
                                 min="5000"
                                 max="150000"
                                 step="2000"
-                                value={inputs.monthlyExpenses}
+                                value={inputs.monthlyExpenses || 0}
                                 onChange={(e) => handleInputChange('monthlyExpenses', e.target.value)}
                                 className="w-full h-2 bg-slate-950 rounded-full appearance-none cursor-pointer accent-indigo-500"
                               />
@@ -495,14 +546,23 @@
                             <div className="space-y-2">
                               <div className="flex justify-between items-center">
                                 <label className="text-[11px] font-black text-slate-400 uppercase tracking-wider">ภาระหนี้ที่ต้องจ่ายต่อเดือน (บาท)</label>
-                                <span className="text-sm font-mono font-bold text-rose-400">฿{inputs.monthlyDebt.toLocaleString()}</span>
+                                <div className="flex items-center gap-1.5">
+                                  <span className="text-xs text-slate-500 font-bold">฿</span>
+                                  <input 
+                                    type="number"
+                                    value={inputs.monthlyDebt}
+                                    onChange={(e) => handleInputChange('monthlyDebt', e.target.value)}
+                                    className="w-28 px-2 py-1 bg-slate-950 border border-slate-800 rounded-lg text-right text-xs font-mono font-bold text-rose-400 focus:outline-none focus:border-rose-500 transition-colors"
+                                    placeholder="ยอดหนี้ต่อเดือน"
+                                  />
+                                </div>
                               </div>
                               <input 
                                 type="range"
                                 min="0"
                                 max="100000"
                                 step="1000"
-                                value={inputs.monthlyDebt}
+                                value={inputs.monthlyDebt || 0}
                                 onChange={(e) => handleInputChange('monthlyDebt', e.target.value)}
                                 className="w-full h-2 bg-slate-950 rounded-full appearance-none cursor-pointer accent-rose-500"
                               />
@@ -514,14 +574,23 @@
                             <div className="space-y-2">
                               <div className="flex justify-between items-center">
                                 <label className="text-[11px] font-black text-slate-400 uppercase tracking-wider">เงินออมสะสมทั้งปี (บาท)</label>
-                                <span className="text-sm font-mono font-bold text-teal-400">฿{inputs.annualSavings.toLocaleString()}</span>
+                                <div className="flex items-center gap-1.5">
+                                  <span className="text-xs text-slate-500 font-bold">฿</span>
+                                  <input 
+                                    type="number"
+                                    value={inputs.annualSavings}
+                                    onChange={(e) => handleInputChange('annualSavings', e.target.value)}
+                                    className="w-28 px-2 py-1 bg-slate-950 border border-slate-800 rounded-lg text-right text-xs font-mono font-bold text-teal-400 focus:outline-none focus:border-teal-500 transition-colors"
+                                    placeholder="เงินออมต่อปี"
+                                  />
+                                </div>
                               </div>
                               <input 
                                 type="range"
                                 min="0"
                                 max="500000"
                                 step="5000"
-                                value={inputs.annualSavings}
+                                value={inputs.annualSavings || 0}
                                 onChange={(e) => handleInputChange('annualSavings', e.target.value)}
                                 className="w-full h-2 bg-slate-950 rounded-full appearance-none cursor-pointer accent-teal-500"
                               />
@@ -530,14 +599,23 @@
                             <div className="space-y-2">
                               <div className="flex justify-between items-center">
                                 <label className="text-[11px] font-black text-slate-400 uppercase tracking-wider">เงินสดออมทรัพย์/สภาพคล่องที่มี (บาท)</label>
-                                <span className="text-sm font-mono font-bold text-teal-400">฿{inputs.liquidAssets.toLocaleString()}</span>
+                                <div className="flex items-center gap-1.5">
+                                  <span className="text-xs text-slate-500 font-bold">฿</span>
+                                  <input 
+                                    type="number"
+                                    value={inputs.liquidAssets}
+                                    onChange={(e) => handleInputChange('liquidAssets', e.target.value)}
+                                    className="w-28 px-2 py-1 bg-slate-950 border border-slate-800 rounded-lg text-right text-xs font-mono font-bold text-teal-400 focus:outline-none focus:border-teal-500 transition-colors"
+                                    placeholder="เงินสดสำรอง"
+                                  />
+                                </div>
                               </div>
                               <input 
                                 type="range"
                                 min="0"
                                 max="1000000"
                                 step="5000"
-                                value={inputs.liquidAssets}
+                                value={inputs.liquidAssets || 0}
                                 onChange={(e) => handleInputChange('liquidAssets', e.target.value)}
                                 className="w-full h-2 bg-slate-950 rounded-full appearance-none cursor-pointer accent-teal-500"
                               />
@@ -546,14 +624,23 @@
                             <div className="space-y-2">
                               <div className="flex justify-between items-center">
                                 <label className="text-[11px] font-black text-slate-400 uppercase tracking-wider">มูลค่าทรัพย์สินรวมทั้งหมด (บาท)</label>
-                                <span className="text-sm font-mono font-bold text-indigo-400">฿{inputs.totalAssets.toLocaleString()}</span>
+                                <div className="flex items-center gap-1.5">
+                                  <span className="text-xs text-slate-500 font-bold">฿</span>
+                                  <input 
+                                    type="number"
+                                    value={inputs.totalAssets}
+                                    onChange={(e) => handleInputChange('totalAssets', e.target.value)}
+                                    className="w-28 px-2 py-1 bg-slate-950 border border-slate-800 rounded-lg text-right text-xs font-mono font-bold text-indigo-400 focus:outline-none focus:border-indigo-500 transition-colors"
+                                    placeholder="ทรัพย์สินรวม"
+                                  />
+                                </div>
                               </div>
                               <input 
                                 type="range"
                                 min="10000"
                                 max="10000000"
                                 step="50000"
-                                value={inputs.totalAssets}
+                                value={inputs.totalAssets || 0}
                                 onChange={(e) => handleInputChange('totalAssets', e.target.value)}
                                 className="w-full h-2 bg-slate-950 rounded-full appearance-none cursor-pointer accent-indigo-500"
                               />
@@ -562,14 +649,23 @@
                             <div className="space-y-2">
                               <div className="flex justify-between items-center">
                                 <label className="text-[11px] font-black text-slate-400 uppercase tracking-wider">ยอดหนี้สินรวมคงเหลือทั้งหมด (บาท)</label>
-                                <span className="text-sm font-mono font-bold text-rose-400">฿{inputs.totalDebts.toLocaleString()}</span>
+                                <div className="flex items-center gap-1.5">
+                                  <span className="text-xs text-slate-500 font-bold">฿</span>
+                                  <input 
+                                    type="number"
+                                    value={inputs.totalDebts}
+                                    onChange={(e) => handleInputChange('totalDebts', e.target.value)}
+                                    className="w-28 px-2 py-1 bg-slate-950 border border-slate-800 rounded-lg text-right text-xs font-mono font-bold text-rose-400 focus:outline-none focus:border-rose-500 transition-colors"
+                                    placeholder="ยอดหนี้รวม"
+                                  />
+                                </div>
                               </div>
                               <input 
                                 type="range"
                                 min="0"
                                 max="5000000"
                                 step="20000"
-                                value={inputs.totalDebts}
+                                value={inputs.totalDebts || 0}
                                 onChange={(e) => handleInputChange('totalDebts', e.target.value)}
                                 className="w-full h-2 bg-slate-950 rounded-full appearance-none cursor-pointer accent-rose-500"
                               />
@@ -840,7 +936,7 @@
                           <div className="p-3 bg-indigo-950 text-indigo-400 rounded-xl"><Sparkles size={20} /></div>
                           <div>
                             <h3 className="text-xl font-black text-white italic leading-none">Spaceship Upgrade Lab</h3>
-                            <p className="text-slate-500 text-xs mt-2">จำลองการปรับปรุงพฤติกรรมออมและการเงินของคุณ เพื่อดูการกัปตันยานวาร์ปได้เสถียรยิ่งขึ้น!</p>
+                            <p className="text-slate-500 text-xs mt-2">จำลองการปรับปรุงพฤทีพรรมออมและการเงินของคุณ เพื่อดูการกัปตันยานวาร์ปได้เสถียรยิ่งขึ้น!</p>
                           </div>
                         </div>
 
@@ -851,14 +947,24 @@
                             <div className="space-y-2">
                               <div className="flex justify-between items-center px-1">
                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">เพิ่มเงินโปะออมต่อเดือน (฿)</label>
-                                <span className="text-xs font-mono font-bold text-indigo-400">+฿{(inputs.annualSavings / 12).toLocaleString(undefined, { maximumFractionDigits: 0 })} / เดือน</span>
+                                <div className="flex items-center gap-1">
+                                  <span className="text-xs text-slate-500 font-bold">฿</span>
+                                  <input 
+                                    type="number"
+                                    value={inputs.annualSavings !== '' ? Math.round(inputs.annualSavings / 12) : ''}
+                                    onChange={(e) => handleInputChange('annualSavings', Number(e.target.value) * 12)}
+                                    className="w-24 px-2 py-1 bg-slate-950 border border-slate-800 rounded-lg text-right text-xs font-mono font-bold text-indigo-400 focus:outline-none focus:border-indigo-500 transition-colors"
+                                    placeholder="ออมเพิ่ม"
+                                  />
+                                  <span className="text-[10px] font-bold text-slate-500">/ เดือน</span>
+                                </div>
                               </div>
                               <input 
                                 type="range"
                                 min="0"
                                 max="50000"
                                 step="1000"
-                                value={inputs.annualSavings / 12}
+                                value={inputs.annualSavings !== '' ? (inputs.annualSavings / 12) : 0}
                                 onChange={(e) => handleInputChange('annualSavings', Number(e.target.value) * 12)}
                                 className="w-full h-2 bg-slate-950 rounded-full appearance-none cursor-pointer accent-indigo-500"
                               />
@@ -867,14 +973,23 @@
                             <div className="space-y-2">
                               <div className="flex justify-between items-center px-1">
                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">ตัดค่าใช้จ่ายฟุ่มเฟือยเพื่อเอามาสร้างเกราะป้องกัน (฿)</label>
-                                <span className="text-xs font-mono font-bold text-teal-400">฿{inputs.liquidAssets.toLocaleString()} (สะสมในคลัง)</span>
+                                <div className="flex items-center gap-1">
+                                  <span className="text-xs text-slate-500 font-bold">฿</span>
+                                  <input 
+                                    type="number"
+                                    value={inputs.liquidAssets}
+                                    onChange={(e) => handleInputChange('liquidAssets', e.target.value)}
+                                    className="w-24 px-2 py-1 bg-slate-950 border border-slate-800 rounded-lg text-right text-xs font-mono font-bold text-teal-400 focus:outline-none focus:border-teal-500 transition-colors"
+                                    placeholder="สำรอง"
+                                  />
+                                </div>
                               </div>
                               <input 
                                 type="range"
                                 min="0"
                                 max="500000"
                                 step="5000"
-                                value={inputs.liquidAssets}
+                                value={inputs.liquidAssets || 0}
                                 onChange={(e) => handleInputChange('liquidAssets', e.target.value)}
                                 className="w-full h-2 bg-slate-950 rounded-full appearance-none cursor-pointer accent-teal-500"
                               />
@@ -883,14 +998,23 @@
                             <div className="space-y-2">
                               <div className="flex justify-between items-center px-1">
                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">จำลองการลดภาระหนี้สินต่อเดือน (฿)</label>
-                                <span className="text-xs font-mono font-bold text-rose-400">฿{inputs.monthlyDebt.toLocaleString()} / เดือน</span>
+                                <div className="flex items-center gap-1">
+                                  <span className="text-xs text-slate-500 font-bold">฿</span>
+                                  <input 
+                                    type="number"
+                                    value={inputs.monthlyDebt}
+                                    onChange={(e) => handleInputChange('monthlyDebt', e.target.value)}
+                                    className="w-24 px-2 py-1 bg-slate-950 border border-slate-800 rounded-lg text-right text-xs font-mono font-bold text-rose-400 focus:outline-none focus:border-rose-500 transition-colors"
+                                    placeholder="ลดหนี้"
+                                  />
+                                </div>
                               </div>
                               <input 
                                 type="range"
                                 min="0"
                                 max="100000"
                                 step="1000"
-                                value={inputs.monthlyDebt}
+                                value={inputs.monthlyDebt || 0}
                                 onChange={(e) => handleInputChange('monthlyDebt', e.target.value)}
                                 className="w-full h-2 bg-slate-950 rounded-full appearance-none cursor-pointer accent-rose-500"
                               />
@@ -971,7 +1095,7 @@
                         <path d="M5,5 h30 v30 h-30 z M15,15 h10 v10 h-10 z" />
                         <path d="M65,5 h30 v30 h-30 z M75,15 h10 v10 h-10 z" />
                         <path d="M5,65 h30 v30 h-30 z M15,75 h10 v10 h-10 z" />
-                        <path d="M45,10 h10 v10 h-10 z M55,20 h10 v10 h-10 z M45,45 h20 v20 h-20 z" />
+                        <path d="M45,10 h10 v10 h-10 z M55,20 h10 v10 h-10 z" />
                         <path d="M80,45 h15 v10 h-15 z M70,60 h10 v15 h-10 z M85,75 h10 v20 h-10 z" />
                         <circle cx="50" cy="50" r="6" className="text-indigo-600" />
                       </svg>
